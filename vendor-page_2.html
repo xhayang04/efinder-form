@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>เลือกนักเตะหลัก</title>
+</head>
+<body class="bg-black min-h-screen flex items-center justify-center px-4">
+  <div class="max-w-md w-full bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-6">
+    <h1 class="text-xl font-bold">ฟอร์มซื้อ-ขายรหัสเกม <span class="text-white">eFootball Mobile</span></h1>
+    <div class="flex items-center space-x-2 text-zinc-400 text-sm border-b border-zinc-700 pb-2">
+      <span>📱</span>
+      <span>(สำหรับผู้ขาย)</span>
+    </div>
+
+    <!-- ช่องค้นหานักเตะหลัก -->
+    <div>
+      <label for="search" class="block text-sm font-semibold mb-1">กรอกชื่อนักเตะหลักที่คุณมี</label>
+      <input
+        type="text"
+        id="search"
+        placeholder="messi"
+        class="w-full bg-zinc-800 text-white border border-yellow-400 rounded-md px-4 py-2 mb-4"
+        oninput="searchPlayers(this.value); localStorage.setItem('main_player_query', this.value);"
+      />
+      <div id="playerResults" class="grid grid-cols-2 gap-4"></div>
+    </div>
+
+    <!-- Divider -->
+    <hr class="border-zinc-700 my-6" />
+
+    <!-- นักเตะที่เลือกไว้ -->
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="text-sm font-semibold">นักเตะที่เลือกไว้</h2>
+      <div class="flex flex-col items-end">
+        <a href="vendor_selected.html" class="text-yellow-400 text-sm font-semibold hover:underline">ดูทั้งหมด &gt;</a>
+        <span id="extraSelectedNote" class="text-xs text-yellow-400 mt-1"></span>
+      </div>
+    </div>
+
+    <!-- ✅ เพิ่ม div นี้กลับเข้าไป -->
+    <div id="selectedPlayersPreview" class="flex gap-3 flex-wrap mb-4"></div>
+
+    <!-- Divider -->
+    <hr class="border-zinc-700 my-6" />
+
+    <!-- ปุ่มย้อนกลับและถัดไป -->
+    <div class="flex justify-between gap-4 pt-4">
+      <button
+        type="button"
+        class="w-1/2 bg-zinc-700 hover:bg-zinc-600 text-white font-semibold py-2 px-4 rounded"
+        onclick="goBack()"
+      >
+        ย้อนกลับ
+      </button>
+      <button
+        type="button"
+        class="w-1/2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded"
+        onclick="goNext()"
+      >
+        ถัดไป
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let selectedPlayerIds = [];
+    let playerData = [];
+
+    async function loadPlayers() {
+      try {
+        const res = await fetch("players.json");
+        playerData = await res.json();
+
+        const savedQuery = localStorage.getItem("main_player_query") || "";
+        document.getElementById("search").value = savedQuery;
+
+        const selected = JSON.parse(localStorage.getItem("main_players")) || [];
+        selectedPlayerIds = selected.map(p => p["row_number"]);
+
+        searchPlayers(savedQuery);
+        renderSelectedPreview();
+      } catch (err) {
+        console.error("โหลด players.json ไม่สำเร็จ:", err);
+      }
+    }
+
+    function searchPlayers(query) {
+      const results = document.getElementById("playerResults");
+      results.innerHTML = "";
+
+      if (!query) return;
+
+      const filtered = playerData.filter(player =>
+        player["Player Name"].toLowerCase().includes(query.toLowerCase())
+      );
+
+      if (filtered.length === 0) {
+        results.innerHTML = "<div class='text-sm text-zinc-400 col-span-2'>ไม่พบนักเตะ</div>";
+        return;
+      }
+
+      filtered.forEach(player => {
+        const id = player["row_number"];
+        const isSelected = selectedPlayerIds.includes(id);
+
+        const card = document.createElement("div");
+        card.className = `p-3 rounded-lg border ${
+          isSelected ? "border-yellow-400 bg-zinc-800" : "border-zinc-700 bg-zinc-900"
+        } cursor-pointer text-center hover:border-yellow-400`;
+        card.onclick = () => {
+          if (isSelected) {
+            selectedPlayerIds = selectedPlayerIds.filter(pid => pid !== id);
+          } else {
+            selectedPlayerIds.push(id);
+          }
+          const selectedPlayers = playerData.filter(p => selectedPlayerIds.includes(p["row_number"]));
+          localStorage.setItem("main_players", JSON.stringify(selectedPlayers));
+          searchPlayers(query);
+          renderSelectedPreview();
+        };
+
+        card.innerHTML = `
+          <img 
+            src="${player["ImageURL"] || "#"}" 
+            alt="${player["Player Name"]}" 
+            class="mx-auto w-20 h-20 rounded-full object-cover object-top scale-125 mb-2" 
+          />
+          ${isSelected ? '<div class="text-xs text-yellow-400 font-bold">SELECTED ✅</div>' : ""}
+          <div class="font-semibold">${player["Player Name"]}</div>
+          <div class="text-sm text-zinc-400">${player["Card Type"] || '-'}</div>
+        `;
+
+
+        results.appendChild(card);
+      });
+    }
+
+    function renderSelectedPreview() {
+      const selectedPlayers = JSON.parse(localStorage.getItem("main_players")) || [];
+      const container = document.getElementById("selectedPlayersPreview");
+      container.innerHTML = "";
+
+      const previewCount = 3;
+      const limitedPlayers = selectedPlayers.slice(0, previewCount);
+
+      limitedPlayers.forEach((player) => {
+        const id = player["row_number"];
+
+        const card = document.createElement("div");
+        card.className = `cursor-pointer text-center`;
+        card.onclick = () => {
+          selectedPlayerIds = selectedPlayerIds.filter(pid => pid !== id);
+          const newSelected = playerData.filter(p => selectedPlayerIds.includes(p["row_number"]));
+          localStorage.setItem("main_players", JSON.stringify(newSelected));
+          renderSelectedPreview();
+          searchPlayers(document.getElementById("search").value);
+        };
+
+        card.innerHTML = `
+          <div class="w-24 h-20 mx-auto mb-1 overflow-hidden rounded-md">
+            <img src="${player["ImageURL"] || "#"}" alt="${player["Player Name"]}" 
+              class="w-full h-full object-cover object-top scale-110" />
+          </div>
+          <div class="text-xs text-yellow-400 font-bold text-center">SELECTED</div>
+        `;
+
+
+
+        container.appendChild(card);
+      });
+
+      // เพิ่มข้อความ "+N" หากมีมากกว่า 3 คน
+      const extraCount = selectedPlayers.length - previewCount;
+      const extraNote = document.getElementById("extraSelectedNote");
+      if (extraNote) {
+        extraNote.textContent = extraCount > 0 ? `+${extraCount}` : "";
+      }
+    }
+
+
+
+    function goBack() {
+      window.location.href = "vendor-page_1.html";
+    }
+
+    function goNext() {
+      if (!localStorage.getItem("main_players") || JSON.parse(localStorage.getItem("main_players")).length === 0) {
+        alert("กรุณาเลือกนักเตะอย่างน้อย 1 คนก่อนกดถัดไป");
+        return;
+      }
+      window.location.href = "vendor-page_3.html";
+    }
+
+    window.addEventListener("DOMContentLoaded", loadPlayers);
+  </script>
+</body>
+</html>

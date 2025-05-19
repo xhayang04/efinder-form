@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>นักเตะที่เลือกไว้</title>
+</head>
+<body class="bg-black min-h-screen text-white px-4 py-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex justify-between items-center mb-4 px-2">
+      <h1 class="text-lg sm:text-xl font-bold">นักเตะที่คุณเลือกไว้</h1>
+      <button
+        onclick="goBack()"
+        class="text-yellow-400 text-xs sm:text-sm border border-yellow-400 px-3 py-1 rounded hover:bg-yellow-500 hover:text-black"
+      >
+        ← กลับไปเลือกเพิ่ม
+      </button>
+    </div>
+
+    <div id="selectedList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-2"></div>
+
+    <div id="emptyMessage" class="text-center text-zinc-400 mt-10 hidden min-h-[200px] flex items-center justify-center">
+      ยังไม่มีนักเตะที่คุณเลือกไว้
+    </div>
+  </div>
+
+  <script>
+    function goBack() {
+      window.location.href = "vendor-page_2.html";
+    }
+
+    function loadSelected() {
+      const container = document.getElementById("selectedList");
+      const emptyMsg = document.getElementById("emptyMessage");
+      container.innerHTML = "";
+
+      const selectedPlayers = JSON.parse(localStorage.getItem("main_players")) || [];
+
+      if (selectedPlayers.length === 0) {
+        emptyMsg.classList.remove("hidden");
+        return;
+      }
+
+      emptyMsg.classList.add("hidden");
+
+      selectedPlayers.forEach(player => {
+        const card = document.createElement("div");
+        card.className =
+          "bg-zinc-900 border border-yellow-400 p-4 rounded text-center";
+
+        card.innerHTML = `
+          <div class="w-24 h-24 mx-auto overflow-hidden rounded-full mb-2">
+            <img src="${player.ImageURL || "#"}" alt="${player["Player Name"]}"
+              class="w-full h-full object-cover object-top scale-125" />
+          </div>
+          <div class="text-sm font-semibold sm:text-base">${player["Player Name"]}</div>
+          <div class="text-xs text-zinc-400 mb-2">${player["Card Type"]}</div>
+          <button onclick="removePlayer(${player.row_number})" class="text-xs text-red-400 hover:text-red-600">ลบออก</button>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function removePlayer(rowNumber) {
+      let selectedPlayers = JSON.parse(localStorage.getItem("main_players")) || [];
+      selectedPlayers = selectedPlayers.filter(p => p.row_number !== rowNumber);
+      localStorage.setItem("main_players", JSON.stringify(selectedPlayers));
+      loadSelected();
+    }
+
+    window.addEventListener("DOMContentLoaded", loadSelected);
+  </script>
+</body>
+</html>

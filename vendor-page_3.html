@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>รายละเอียดเพิ่มเติม</title>
+</head>
+<body class="bg-black min-h-screen flex items-center justify-center px-4 py-6">
+  <div class="max-w-lg w-full bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-6">
+    <h1 class="text-xl font-bold text-center">ฟอร์มซื้อ-ขายรหัสเกม <span class="text-white">eFootball Mobile</span></h1>
+    <div class="flex items-center justify-center space-x-2 text-zinc-400 text-sm border-b border-zinc-700 pb-2">
+      <span>📱</span>
+      <span>(สำหรับผู้ขาย)</span>
+    </div>
+
+    <!-- Upload หลายไฟล์ -->
+    <div class="space-y-2">
+      <label class="block text-sm font-semibold">โค้ชที่คุณมี ? (แคปรูปภาพหน้ารวมโค้ช)*</label>
+      <input type="file" id="coachImages" accept="image/*" multiple class="block w-full bg-zinc-800 text-white border border-yellow-400 rounded-md px-3 py-2" />
+    </div>
+
+    <div class="space-y-2">
+      <label class="block text-sm font-semibold">ใส่รายละเอียดรูปภาพเพิ่มเติม*</label>
+      <input type="file" id="extraImages" accept="image/*" multiple class="block w-full bg-zinc-800 text-white border border-yellow-400 rounded-md px-3 py-2" />
+    </div>
+
+    <!-- Login -->
+    <div class="space-y-2">
+      <label class="block text-sm font-semibold">Login เหลือกี่ครั้ง?*</label>
+      <input
+        type="text"
+        id="loginLeft"
+        maxlength="2"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,2); localStorage.setItem('login_left', this.value);"
+        class="w-full bg-zinc-800 text-white border border-yellow-400 rounded-md px-4 py-2"
+        placeholder="0-10"
+        required
+      />
+    </div>
+
+    <!-- ระบบผูกบัญชี -->
+    <div class="space-y-2">
+      <label class="block text-sm font-semibold">ระบบของคุณสะอาดหรือไม่ ?*</label>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <button onclick="selectSystem('clean', this)" class="system-btn">ระบบสะอาด</button>
+        <button onclick="selectSystem('gc', this)" class="system-btn">ระบบผูก Game Center</button>
+        <button onclick="selectSystem('playstore', this)" class="system-btn">ระบบผูก Google Playstore</button>
+      </div>
+    </div>
+
+    <!-- ราคา -->
+    <div class="space-y-2">
+      <label class="block text-sm font-semibold">ราคาที่คุณต้องการขาย (บาท)*</label>
+      <input
+        type="text"
+        id="price"
+        inputmode="numeric"
+        oninput="this.value = this.value.replace(/[^0-9]/g, ''); localStorage.setItem('price', this.value);"
+        class="w-full bg-zinc-800 text-white border border-yellow-400 rounded-md px-4 py-2"
+        placeholder="เช่น 350"
+        required
+      />
+    </div>
+
+    <!-- ปุ่ม -->
+    <div class="flex flex-col sm:flex-row justify-between gap-4 pt-4">
+      <button onclick="goBack()" class="w-full sm:w-1/2 bg-zinc-700 hover:bg-zinc-600 text-white font-semibold py-2 px-4 rounded">
+        ย้อนกลับ
+      </button>
+      <button onclick="submitForm()" class="w-full sm:w-1/2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded">
+        ส่งข้อมูล
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let selectedSystem = "";
+
+    function selectSystem(system, btn) {
+      selectedSystem = system;
+      localStorage.setItem("system", system);
+      document.querySelectorAll('.system-btn').forEach(b => {
+        b.classList.remove("bg-yellow-400", "text-yellow-500");
+        b.classList.add("bg-zinc-800", "text-white");
+      });
+      btn.classList.remove("bg-zinc-800", "text-white");
+      btn.classList.add("bg-yellow-400", "text-yellow-500");
+    }
+
+    function goBack() {
+      window.location.href = "vendor-page_2.html";
+    }
+
+    function submitForm() {
+      const coachImages = document.getElementById("coachImages").files;
+      const extraImages = document.getElementById("extraImages").files;
+      const loginLeft = document.getElementById("loginLeft").value;
+      const price = document.getElementById("price").value;
+      const selectedPlayers = JSON.parse(localStorage.getItem("main_players") || "[]");
+
+      if (coachImages.length === 0 || extraImages.length === 0 || !loginLeft || !selectedSystem || !price) {
+        alert("กรุณากรอกข้อมูลให้ครบ");
+        return;
+      }
+
+      if (parseInt(loginLeft) > 10) {
+        alert("Login เหลือมากสุดได้ไม่เกิน 10 ครั้ง");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("username", localStorage.getItem("username"));
+      formData.append("user_id", localStorage.getItem("user_id"));
+      formData.append("main_player", localStorage.getItem("main_player"));
+      formData.append("login_left", loginLeft);
+      formData.append("system", selectedSystem);
+      formData.append("price", price);
+      formData.append("timestamp", new Date().toISOString());
+      formData.append("players_json", JSON.stringify(selectedPlayers));
+
+      for (let i = 0; i < coachImages.length; i++) {
+        formData.append("coach_images[]", coachImages[i]);
+      }
+      for (let i = 0; i < extraImages.length; i++) {
+        formData.append("extra_images[]", extraImages[i]);
+      }
+
+      fetch("http://192.168.107.133:5678/webhook/027e3ff4-3378-4c3b-94c0-8069c62ca6aa", {
+        method: "POST",
+        body: formData
+      })
+      .then(res => {
+        if (res.ok) {
+          alert("✅ ส่งข้อมูลเรียบร้อยแล้ว!");
+          localStorage.clear();
+        } else {
+          alert("❌ ส่งข้อมูลไม่สำเร็จ");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("🚫 เกิดข้อผิดพลาดระหว่างส่งข้อมูล");
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("loginLeft").value = localStorage.getItem("login_left") || "";
+      document.getElementById("price").value = localStorage.getItem("price") || "";
+
+      const savedSystem = localStorage.getItem("system");
+      if (savedSystem) {
+        const buttons = document.querySelectorAll(".system-btn");
+        buttons.forEach(btn => {
+          if (
+            (savedSystem === "clean" && btn.textContent.includes("สะอาด")) ||
+            (savedSystem === "gc" && btn.textContent.includes("Game Center")) ||
+            (savedSystem === "playstore" && btn.textContent.includes("Playstore"))
+          ) {
+            selectSystem(savedSystem, btn);
+          }
+        });
+      }
+    });
+  </script>
+
+  <style>
+    .system-btn {
+      flex: 1 1 auto;
+      background-color: #1c1c1c;
+      border: 1px solid #444;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: background-color 0.2s, color 0.2s;
+      min-width: 100px;
+    }
+  </style>
+</body>
+</html>
