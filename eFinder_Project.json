@@ -1,0 +1,394 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "027e3ff4-3378-4c3b-94c0-8069c62ca6aa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        300
+      ],
+      "id": "2755567c-2d04-4767-81d9-70a078649a7e",
+      "name": "Webhook",
+      "webhookId": "027e3ff4-3378-4c3b-94c0-8069c62ca6aa"
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 403
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        200
+      ],
+      "id": "d959bf83-564f-4710-a678-2ffc17c025ba",
+      "name": "Respond to Webhook",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "54e49377-cdc3-42f7-97c3-b3bf4d8df134",
+              "leftValue": "={{ $json.query['hub.mode'] }}",
+              "rightValue": "subscribe",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "f4743168-7c27-4220-ba92-aff66fe2d120",
+              "leftValue": "={{ $json.query['hub.verify_token'] }}",
+              "rightValue": "fb-messenger-yt-secret",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -260,
+        120
+      ],
+      "id": "50a18526-8c92-4bd1-9422-e0f6c97f6e11",
+      "name": "If",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $('Webhook').item.json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b4dc3ce9-9599-4ae7-a74e-4d851941e740",
+      "name": "Respond to Webhook1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fa7f853b-f43f-4d8f-bbae-04a70a912499",
+              "name": "token",
+              "value": "EAAYWNctysZBsBOynOibFhhC5pX35hopBk8d3SXnovOponJRbRW5nMowwDo06unataG76VLT2AT1YNm5ccRJlKW1HSZANisfrZAkxfSffZA8QJGAs3EXQhRqsXnA7vZAfsIfbb9w1MPimeZAvBcwZAVJv1ZBZApN1SKPMZA6Clg5cmVQi6Is7MhqWZCuKj1ZB0B9YZACNN",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1040,
+        60
+      ],
+      "id": "96731d2d-1035-46e2-ac0c-6a35034acb99",
+      "name": "Save token"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        60
+      ],
+      "id": "261405ff-be83-482a-a6ce-4ceaeea3fec9",
+      "name": "Facebook Graph API",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v22.0/{{ $('Webhook').item.json.body.entry[0].messaging[0].recipient.id }}/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "EAAYWNctysZBsBOynOibFhhC5pX35hopBk8d3SXnovOponJRbRW5nMowwDo06unataG76VLT2AT1YNm5ccRJlKW1HSZANisfrZAkxfSffZA8QJGAs3EXQhRqsXnA7vZAfsIfbb9w1MPimeZAvBcwZAVJv1ZBZApN1SKPMZA6Clg5cmVQi6Is7MhqWZCuKj1ZB0B9YZACNN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": \"Hello Yessir\"\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1180,
+        700
+      ],
+      "id": "c6fced36-17ed-4942-bc95-3c8331124731",
+      "name": "Response to Messenger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v22.0/{{ $('Webhook').item.json.body.entry[0].messaging[0].recipient.id }}/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "EAAYWNctysZBsBOynOibFhhC5pX35hopBk8d3SXnovOponJRbRW5nMowwDo06unataG76VLT2AT1YNm5ccRJlKW1HSZANisfrZAkxfSffZA8QJGAs3EXQhRqsXnA7vZAfsIfbb9w1MPimeZAvBcwZAVJv1ZBZApN1SKPMZA6Clg5cmVQi6Is7MhqWZCuKj1ZB0B9YZACNN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Webhook').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"attachment\": {\n      \"type\": \"image\",\n      \"payload\": {\n        \"url\": \"https://i.imgur.com/VTHBdci.png\",\n        \"is_reusable\": true\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -820,
+        840
+      ],
+      "id": "281f2352-3c17-4fa8-bc15-7bba3261c9c0",
+      "name": "Response Image to Messenger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "29f70d45-b368-4a00-9241-6b3aa3502353",
+              "leftValue": "={{ $runIndex }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1180,
+        860
+      ],
+      "id": "3e14b9ba-f895-4221-bde3-5ecd7b2f2cf5",
+      "name": "If1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudinary.com/v1_1/dwurzpgho/image/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"file\": \"https://i.imgur.com/VTHBdci.png\",\n  \"upload_preset\": \"n8n_unsigned_upload\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1200,
+        60
+      ],
+      "id": "7f6c82e9-05d4-4fa9-94a1-1f668530c017",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6649aa33-ab2e-4a71-a3cc-34a3f80af741",
+              "name": "test",
+              "value": "test",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -300,
+        380
+      ],
+      "id": "180159e3-69d4-43a4-9212-704614ec81c8",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "Edit Fields": [
+      {
+        "json": {
+          "headers": {
+            "host": "chayang-n8n-app.onrender.com",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "content-length": "175",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "th-TH,th;q=0.9",
+            "cdn-loop": "cloudflare; loops=1",
+            "cf-connecting-ip": "104.28.214.144",
+            "cf-ipcountry": "TH",
+            "cf-ray": "94441be0cc665805-BKK",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "content-type": "application/json",
+            "origin": "http://127.0.0.1:5500",
+            "priority": "u=1, i",
+            "referer": "http://127.0.0.1:5500/",
+            "render-proxy-ttl": "4",
+            "rndr-id": "992a22e4-acac-446e",
+            "sec-ch-ua": "\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "true-client-ip": "104.28.214.144",
+            "x-forwarded-for": "104.28.214.144, 172.68.44.181, 10.214.8.243",
+            "x-forwarded-proto": "https",
+            "x-request-start": "1747998648571526"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "email": "chayangkun.slt04@gmail.com",
+            "username": "chayang04",
+            "password": "Eo0863445992",
+            "facebookName": "Chayangkun",
+            "facebookLink": "https://www.facebook.com/chayangkun.332589"
+          },
+          "webhookUrl": "http://0.0.0.0:10000/webhook/027e3ff4-3378-4c3b-94c0-8069c62ca6aa",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response to Messenger",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Response Image to Messenger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1a208dc6-acf4-4769-879f-7d97080f18b3",
+  "meta": {
+    "instanceId": "62728380aaadcac16dedd9c9a9af817a913bcc4599820fa8c63845a0d3feac8c"
+  },
+  "id": "G3IJBXxdIdRvSaNZ",
+  "tags": []
+}

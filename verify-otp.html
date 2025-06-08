@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>ยืนยันตัวตน - eFinder</title>
+</head>
+<body class="bg-black min-h-screen flex flex-col items-center justify-center px-4 py-6">
+
+  <!-- กล่องเนื้อหา -->
+  <div class="w-full max-w-md bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-6 text-center">
+
+    <!-- โลโก้ -->
+    <div class="flex justify-center">
+      <img src="logo.png" alt="eFinder Logo" class="w-12 h-12" />
+    </div>
+
+    <!-- ข้อความ -->
+    <h2 class="text-xl font-bold">ตรวจสอบอีเมลของคุณ</h2>
+    <p class="text-zinc-400 text-sm">
+      เราได้ส่งรหัสยืนยันไปที่
+      <span id="emailDisplay" class="text-yellow-400 font-semibold">your@email.com</span>
+    </p>
+
+    <!-- ช่องกรอกรหัส -->
+    <div class="flex justify-center gap-2 mt-4">
+      <input maxlength="1" class="otp-box w-10 h-12 text-center rounded-md bg-zinc-800 border border-yellow-400 text-xl" />
+      <input maxlength="1" class="otp-box w-10 h-12 text-center rounded-md bg-zinc-800 border border-yellow-400 text-xl" />
+      <input maxlength="1" class="otp-box w-10 h-12 text-center rounded-md bg-zinc-800 border border-yellow-400 text-xl" />
+      <input maxlength="1" class="otp-box w-10 h-12 text-center rounded-md bg-zinc-800 border border-yellow-400 text-xl" />
+      <input maxlength="1" class="otp-box w-10 h-12 text-center rounded-md bg-zinc-800 border border-yellow-400 text-xl" />
+      <input maxlength="1" class="otp-box w-10 h-12 text-center rounded-md bg-zinc-800 border border-yellow-400 text-xl" />
+    </div>
+
+    <!-- ปุ่มยืนยัน -->
+    <button
+      class="w-full mt-6 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded"
+      onclick="submitOTP()"
+    >
+      ยืนยันอีเมล
+    </button>
+
+    <!-- ข้อความ error -->
+    <p id="otpError" class="text-red-400 text-sm mt-2 hidden"></p>
+
+    <!-- ลิงก์สำรอง -->
+    <div class="text-sm text-zinc-400 mt-2">
+      <p>ไม่ได้รับอีเมลใช่ไหม? <button onclick="resendOTP()" class="text-yellow-400 hover:underline"> คลิกเพื่อส่งใหม่</button></p>
+      <button onclick="goBack()" class="inline-block mt-2 text-zinc-400 hover:underline">← กลับไปหน้าก่อนหน้า</button>
+    </div>
+  </div>
+
+  <script>
+    // Auto focus ต่อช่อง + ลบย้อนกลับ + ล้าง error
+    document.querySelectorAll(".otp-box").forEach((input, idx, all) => {
+      input.addEventListener("input", () => {
+        if (input.value && idx < all.length - 1) all[idx + 1].focus();
+        document.getElementById("otpError").classList.add("hidden");
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !input.value && idx > 0) all[idx - 1].focus();
+      });
+    });
+
+    function goBack() {
+      const flow = localStorage.getItem("otpFlow");
+      if (flow === "reset") {
+        window.location.href = "reset-password.html";
+      } else {
+        window.location.href = "signup.html";
+      }
+    }
+
+    function submitOTP() {
+      const code = [...document.querySelectorAll(".otp-box")].map(el => el.value).join('');
+      const errorBox = document.getElementById("otpError");
+
+      if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+        errorBox.textContent = "กรุณากรอกรหัส 6 หลักให้ครบ";
+        errorBox.classList.remove("hidden");
+        return;
+      }
+
+      const email = localStorage.getItem("otpEmail") || localStorage.getItem("userEmail");
+      const otpSessionId = localStorage.getItem("otpSessionId");
+      const otpFlow = localStorage.getItem("otpFlow");
+      const newPassword = localStorage.getItem("otpNewPassword");
+
+      if (!email || !otpSessionId || !otpFlow) {
+        errorBox.textContent = "ไม่พบข้อมูลสำหรับยืนยัน กรุณาเริ่มใหม่";
+        errorBox.classList.remove("hidden");
+        return;
+      }
+
+      const payload = {
+        email,
+        otp: code,
+        otpSessionId,
+        flow: otpFlow // 👈 เพิ่มตรงนี้เพื่อบอกว่า signup หรือ reset
+      };
+
+      if (otpFlow === "reset") {
+        payload.newPassword = newPassword;
+      }
+
+      fetch("https://chayang-n8n-app.onrender.com/webhook/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.clear();
+          window.location.href = "vendor-page_1.html";
+        } else {
+          let failCount = parseInt(localStorage.getItem("otpFailCount") || "0", 10);
+          failCount++;
+
+          if (failCount >= 3) {
+            alert("คุณกรอกรหัสไม่ถูกต้องเกิน 3 ครั้ง กรุณาเริ่มใหม่");
+            localStorage.clear();
+            window.location.href = "vendor-page_1.html";
+            return;
+          }
+
+          localStorage.setItem("otpFailCount", failCount.toString());
+          errorBox.textContent = data.message || "รหัส OTP ไม่ถูกต้อง";
+          errorBox.classList.remove("hidden");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        errorBox.textContent = "ไม่สามารถเชื่อมต่อกับระบบได้";
+        errorBox.classList.remove("hidden");
+      });
+    }
+
+    const email = localStorage.getItem("otpEmail") || localStorage.getItem("userEmail");
+    if (email) {
+      document.getElementById("emailDisplay").textContent = email;
+    }
+
+    function resendOTP() {
+      const email = localStorage.getItem("otpEmail") || localStorage.getItem("userEmail");
+      const otpFlow = localStorage.getItem("otpFlow");
+
+      if (!email || !otpFlow) {
+        alert("ไม่พบอีเมลของคุณ กรุณาเริ่มใหม่");
+        window.location.href = "vendor-page_1.html";
+        return;
+      }
+
+      let resendCount = parseInt(localStorage.getItem("resendCount") || "0", 10);
+      resendCount++;
+
+      if (resendCount > 3) {
+        alert("คุณกดส่งรหัสเกินจำนวนที่กำหนด กรุณาเริ่มใหม่");
+        localStorage.clear();
+        window.location.href = "vendor-page_1.html";
+        return;
+      }
+
+      localStorage.setItem("resendCount", resendCount.toString());
+
+      const webhook = otpFlow === "reset"
+        ? "https://chayang-n8n-app.onrender.com/webhook/reset-password"
+        : "https://chayang-n8n-app.onrender.com/webhook/signup";
+
+      fetch(webhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem("otpSessionId", data.otpSessionId);
+          alert(`ส่งรหัส OTP ใหม่เรียบร้อยแล้ว (${resendCount}/3 ครั้ง)`);
+        } else {
+          alert(data.message || "เกิดข้อผิดพลาดในการส่งรหัสใหม่");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("ไม่สามารถเชื่อมต่อกับระบบได้");
+      });
+    }
+  </script>
+
+
+
+</body>
+</html>

@@ -1,10 +1,44 @@
 <!DOCTYPE html>
 <html lang="th">
-  <head>
-    <meta http-equiv="refresh" content="0; url=vendor-page_1.html" />
-    <title>กำลังเปลี่ยนเส้นทาง...</title>
-  </head>
-  <body>
-    <p>กำลังพาคุณไปยังหน้าแรก... <a href="vendor-page_1.html">คลิกที่นี่หากไม่ไปอัตโนมัติ</a></p>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>เลือกบทบาท - eFinder</title>
+</head>
+<body class="bg-black min-h-screen flex flex-col items-center justify-center px-4 py-8">
+
+  <!-- โลโก้และ tagline -->
+  <div class="flex flex-col items-center mb-10 space-y-2">
+    <div class="flex items-center space-x-2">
+      <img src="logo.png" alt="eFinder Logo" class="w-12 h-12" />
+      <span class="text-2xl font-bold text-white">eFinder</span>
+    </div>
+    <p class="text-zinc-400 text-sm">แพลตฟอร์มซื้อขายรหัสเกมที่คุณไว้ใจได้</p>
+  </div>
+
+  <!-- กล่อง 2 ฝั่ง Responsive -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+    <!-- ผู้ซื้อ -->
+    <div class="w-64 h-[520px] bg-zinc-900 border border-yellow-400 rounded-xl flex flex-col items-center justify-center space-y-4 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+      <img src="buyer_logo.svg" class="w-32 h-32 object-contain" alt="buyer" />
+      <p class="text-white font-semibold text-lg">สำหรับผู้ซื้อ</p>
+      <button onclick="window.location.href='buyer-coming-soon.html'" class="w-48 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded">
+        👤 ฉันเป็นผู้ซื้อ
+      </button>
+    </div>
+
+    <!-- ผู้ขาย -->
+    <div class="w-64 h-[520px] bg-zinc-900 border border-yellow-400 rounded-xl flex flex-col items-center justify-center space-y-4 transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+      <img src="seller_logo.svg" class="w-32 h-32 object-contain" alt="seller" />
+      <p class="text-white font-semibold text-lg">สำหรับผู้ขาย</p>
+      <button onclick="window.location.href='vendor-page_1.html'" class="w-48 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 rounded">
+        🛒 ฉันเป็นผู้ขาย
+      </button>
+    </div>
+
+  </div>
+
+</body>
 </html>

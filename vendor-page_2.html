@@ -6,21 +6,31 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <title>เลือกนักเตะหลัก</title>
 </head>
+
 <body class="bg-black min-h-screen flex items-center justify-center px-4">
-  <div class="max-w-md w-full bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-6">
-    <h1 class="text-xl font-bold">ฟอร์มซื้อ-ขายรหัสเกม <span class="text-white">eFootball Mobile</span></h1>
-    <div class="flex items-center space-x-2 text-zinc-400 text-sm border-b border-zinc-700 pb-2">
+  <div class="max-w-md w-full bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-3">
+    <div class="flex items-center space-x-2 mb-4">
+      <img src="logo.png" alt="eFinder Logo" class="w-10 h-10" />
+      <span class="text-lg font-bold">eFinder</span>
+    </div>
+
+    <h1 class="text-xl font-bold text-white">ฟอร์มซื้อ-ขายรหัสเกม <span class="text-white">eFootball Mobile</span></h1>
+    
+    <div class="flex items-center space-x-2 text-zinc-400 text-sm">
       <span>📱</span>
       <span>(สำหรับผู้ขาย)</span>
     </div>
 
+    <!-- Divider -->
+    <hr class="border-zinc-700 my-6" />
+
     <!-- ช่องค้นหานักเตะหลัก -->
     <div>
-      <label for="search" class="block text-sm font-semibold mb-1">กรอกชื่อนักเตะหลักที่คุณมี</label>
+      <label for="search" class="block text-sm font-semibold mb-1">นักเตะหลักที่คุณมี</label>
       <input
         type="text"
         id="search"
-        placeholder="messi"
+        placeholder="กรอกชื่อนักเตะหลักที่คุณมี"
         class="w-full bg-zinc-800 text-white border border-yellow-400 rounded-md px-4 py-2 mb-4"
         oninput="searchPlayers(this.value); localStorage.setItem('main_player_query', this.value);"
       />
@@ -67,6 +77,13 @@
   <script>
     let selectedPlayerIds = [];
     let playerData = [];
+
+    // ตรวจสอบว่ามี flowType หรือไม่
+    const flowType = localStorage.getItem("flowType");
+    if (!flowType) {
+      alert("กรุณาเลือกประเภทการจัดการรหัสก่อน");
+      window.location.href = "select-update_or_sell.html";
+    }
 
     async function loadPlayers() {
       try {
@@ -182,17 +199,19 @@
 
 
     function goBack() {
-      window.location.href = "vendor-page_1.html";
+      window.location.href = "select-update_or_sell.html";
     }
 
     function goNext() {
-      if (!localStorage.getItem("main_players") || JSON.parse(localStorage.getItem("main_players")).length === 0) {
+      const selected = JSON.parse(localStorage.getItem("main_players") || "[]");
+      if (selected.length === 0) {
         alert("กรุณาเลือกนักเตะอย่างน้อย 1 คนก่อนกดถัดไป");
         return;
       }
+
+      // ไปต่อ พร้อมให้ vendor-page_3.html ใช้ flowType ต่อได้
       window.location.href = "vendor-page_3.html";
     }
-
     window.addEventListener("DOMContentLoaded", loadPlayers);
   </script>
 </body>

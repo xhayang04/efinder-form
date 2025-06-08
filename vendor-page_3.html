@@ -6,13 +6,23 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <title>รายละเอียดเพิ่มเติม</title>
 </head>
-<body class="bg-black min-h-screen flex items-center justify-center px-4 py-6">
-  <div class="max-w-lg w-full bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-6">
-    <h1 class="text-xl font-bold text-center">ฟอร์มซื้อ-ขายรหัสเกม <span class="text-white">eFootball Mobile</span></h1>
-    <div class="flex items-center justify-center space-x-2 text-zinc-400 text-sm border-b border-zinc-700 pb-2">
+
+<body class="bg-black min-h-screen flex items-center justify-center px-4">
+  <div class="max-w-md w-full bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-3">
+    <div class="flex items-center space-x-2 mb-4">
+      <img src="logo.png" alt="eFinder Logo" class="w-10 h-10" />
+      <span class="text-lg font-bold">eFinder</span>
+    </div>
+
+    <h1 class="text-xl font-bold text-white">ฟอร์มซื้อ-ขายรหัสเกม <span class="text-white">eFootball Mobile</span></h1>
+    
+    <div class="flex items-center space-x-2 text-zinc-400 text-sm">
       <span>📱</span>
       <span>(สำหรับผู้ขาย)</span>
     </div>
+
+    <!-- Divider -->
+    <hr class="border-zinc-700 my-6" />
 
     <!-- Upload หลายไฟล์ -->
     <div class="space-y-2">
@@ -120,6 +130,7 @@
       formData.append("price", price);
       formData.append("timestamp", new Date().toISOString());
       formData.append("players_json", JSON.stringify(selectedPlayers));
+      formData.append("flow", localStorage.getItem("flow"));
 
       for (let i = 0; i < coachImages.length; i++) {
         formData.append("coach_images[]", coachImages[i]);
@@ -129,7 +140,7 @@
       }
 
       // fetch("http://192.168.107.133:5678/webhook/027e3ff4-3378-4c3b-94c0-8069c62ca6aa"
-      fetch("https://chayang-n8n-app.onrender.com/webhook/027e3ff4-3378-4c3b-94c0-8069c62ca6aa", {
+      fetch("https://chayang-n8n-app.onrender.com/webhook/vendor_database", {
         method: "POST",
         body: formData
       })

@@ -1,0 +1,447 @@
+{
+  "name": "eFootball Project - Sign up",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -840,
+        340
+      ],
+      "id": "f86a42d5-1aa2-414c-8156-2271bcb960d9",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "signup",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        100
+      ],
+      "id": "1eb7e263-ce77-4ba1-a4c0-fc0238cb3a94",
+      "name": "Webhook",
+      "webhookId": "027e3ff4-3378-4c3b-94c0-8069c62ca6aa"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a27567d-946b-4b44-8fe6-4ee4f06cdf56",
+              "name": "test",
+              "value": "test",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -640,
+        340
+      ],
+      "id": "631f9a1f-eecf-4a19-b534-99b45331cf09",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ดึงข้อมูลทั้งหมดจาก node ก่อนหน้า\nconst sheetData = $input.all().map(item => item.json);\n\n// ดึง email จาก input node (กรณี webhook)\nconst inputEmail = $json.body?.email || $json.email;\n\n// ตรวจสอบว่า email มีในข้อมูล Google Sheet หรือไม่\nconst found = sheetData.some(entry => entry.email === inputEmail);\n\n// ส่งผลลัพธ์\nreturn [\n  {\n    json: {\n      email: inputEmail,\n      exists: found\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        220
+      ],
+      "id": "231c3e7e-bcb1-4d51-b12e-e9c0c07a4e4c",
+      "name": "Check Email"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "caf7d370-4571-47ed-add6-e444042b8bc3",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        140,
+        220
+      ],
+      "id": "5b026626-4bed-4af4-9529-176025d85b9f",
+      "name": "If has a email"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": false,\n  \"message\": \"อีเมลนี้ถูกใช้งานแล้ว\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        280
+      ],
+      "id": "b6fd2b28-5ae1-4d6a-9990-acc53235dbbf",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"otpSessionId\": {{ $json.otp }},\n  \"resumeUrl\": \"{{ $execution.resumeUrl }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        360,
+        440
+      ],
+      "id": "0b684db3-2fc6-4482-adac-cb87dabf977d",
+      "name": "Respond to Webhook3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const otp = Math.floor(100000 + Math.random() * 900000).toString();\n\nreturn [\n  {\n    json: {\n      otp: otp\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        140,
+        440
+      ],
+      "id": "735d2a50-6585-4c41-8eed-e71787ab6bc2",
+      "name": "Generate OTP"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.email}}",
+        "subject": "=รหัส OTP สำหรับการยืนยันตัวตน eFinder",
+        "emailType": "text",
+        "message": "=สวัสดีจากทีมงาน eFinder 👋\n\nรหัส OTP สำหรับยืนยันอีเมลของคุณคือ:\n\n🔐 {{ $json.otp }}\n\nกรุณานำรหัสนี้ไปกรอกในหน้าลงทะเบียนเพื่อยืนยันอีเมลของคุณ  \n**รหัสนี้จะหมดอายุภายใน 5 นาที**\n\nหากคุณไม่ได้ร้องขอการลงทะเบียนนี้ กรุณาเพิกเฉยต่ออีเมลฉบับนี้  \nและห้ามเปิดเผยรหัสนี้กับผู้อื่นเพื่อความปลอดภัยของบัญชีคุณ\n\nขอบคุณที่ร่วมเป็นส่วนหนึ่งกับ eFinder 💛\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        580,
+        440
+      ],
+      "id": "71e40e57-0f6e-4a20-ae99-e8b19c8c8cbf",
+      "name": "Send OTP to gmail",
+      "webhookId": "707046e5-b53a-4e50-8900-899b48ab81b6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "s0z1r1JVe12ypsNo",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1dVA1Ob9L0KnwJZ11X-8_MsC8iiPkp3b3Z1yAFBT2ZlQ",
+          "mode": "list",
+          "cachedResultName": "user information",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dVA1Ob9L0KnwJZ11X-8_MsC8iiPkp3b3Z1yAFBT2ZlQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dVA1Ob9L0KnwJZ11X-8_MsC8iiPkp3b3Z1yAFBT2ZlQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -300,
+        220
+      ],
+      "id": "9281e525-8138-4ddc-b5dd-dd9c42a5e640",
+      "name": "Get User data",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oAVayzD7YVaUXAj4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KJiDJPBiU33xWx7T",
+          "mode": "list",
+          "cachedResultName": "eFootball Project - Verify OTP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1580,
+        460
+      ],
+      "id": "f5d60029-7793-4fbc-a95f-35621d285693",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        440
+      ],
+      "id": "c849c967-190d-4ebb-8034-d6067d10300c",
+      "name": "Wait",
+      "webhookId": "da031be5-d5e6-457b-8393-7623ba15a57c"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1020,
+        440
+      ],
+      "id": "8df0ab11-1641-4a11-8062-169c81d107c6",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {
+    "Edit Fields": [
+      {
+        "json": {
+          "headers": {
+            "host": "chayang-n8n-app.onrender.com",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "content-length": "205",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "th-TH,th;q=0.9",
+            "cdn-loop": "cloudflare; loops=1",
+            "cf-connecting-ip": "104.28.214.144",
+            "cf-ipcountry": "TH",
+            "cf-ray": "9453c02b3ee45805-PDX",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "content-type": "application/json",
+            "origin": "http://127.0.0.1:5500",
+            "priority": "u=1, i",
+            "referer": "http://127.0.0.1:5500/",
+            "render-proxy-ttl": "4",
+            "rndr-id": "7562cdcb-efc3-458c",
+            "sec-ch-ua": "\"Chromium\";v=\"136\", \"Google Chrome\";v=\"136\", \"Not.A/Brand\";v=\"99\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "true-client-ip": "104.28.214.144",
+            "x-forwarded-for": "104.28.214.144, 172.68.175.46, 10.214.8.165",
+            "x-forwarded-proto": "https",
+            "x-request-start": "1748162664320559"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "email": "chayangkun.slt04@gmail.com",
+            "username": "chayang04",
+            "password": "Eo0863445992",
+            "senderId": "8954422201326343",
+            "facebookName": "Chayangkun",
+            "facebookLink": "https://www.facebook.com/chayangkun.332589"
+          },
+          "webhookUrl": "https://chayang-n8n-app.onrender.com/webhook/027e3ff4-3378-4c3b-94c0-8069c62ca6aa",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get User data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get User data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Email": {
+      "main": [
+        [
+          {
+            "node": "If has a email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If has a email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook3": {
+      "main": [
+        [
+          {
+            "node": "Send OTP to gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate OTP": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send OTP to gmail": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User data": {
+      "main": [
+        [
+          {
+            "node": "Check Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow": {
+      "main": [
+        []
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "10fa264b-0b26-407f-88e1-17d72b318571",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7d68c30b7726ca6033a3f95daa73d0181c59727c31a82b96244e305369286670"
+  },
+  "id": "elKKhgYA83enqEWW",
+  "tags": []
+}

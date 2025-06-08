@@ -4,81 +4,177 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <title>ฟอร์มซื้อ-ขายรหัสเกม eFootball</title>
+  <title>เข้าสู่ระบบ - eFinder</title>
 </head>
+
 <body class="bg-black min-h-screen flex items-center justify-center px-4">
-  <div class="max-w-md w-full bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-6">
+  <div class="max-w-md w-full bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-4">
+    <div class="flex items-center space-x-2 mb-4">
+      <img src="logo.png" alt="eFinder Logo" class="w-10 h-10" />
+      <span class="text-lg font-bold">eFinder</span>
+    </div>
+
     <h1 class="text-xl font-bold text-white">ฟอร์มซื้อ-ขายรหัสเกม <span class="text-white">eFootball Mobile</span></h1>
+
     <div class="flex items-center space-x-2 text-zinc-400 text-sm">
       <span>📱</span>
       <span>(สำหรับผู้ขาย)</span>
     </div>
 
-    <!-- ฟอร์มกรอกข้อมูล -->
+    <hr class="border-zinc-700 my-6" />
+    
     <div>
-      <!-- Username Input -->
+      <!-- Username -->
       <div>
-        <label for="username" class="block text-sm font-semibold mb-1">ชื่อผู้ใช้งาน (ชื่อเดียวกับที่ใช้สมัคร)*</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          required
-          class="w-full bg-zinc-800 text-white border border-yellow-400 focus:ring-2 focus:ring-yellow-500 rounded-md px-4 py-2"
-          placeholder="กรอกชื่อผู้ใช้งาน"
-          oninput="localStorage.setItem('username', this.value)"
-        />
+        <label for="username" class="block text-sm font-semibold mb-1">ชื่อผู้ใช้งาน*</label>
+        <input type="text" id="username" class="w-full bg-zinc-800 text-white border border-yellow-400 rounded-md px-4 py-2" placeholder="กรอกชื่อผู้ใช้งาน" />
+        <p id="usernameError" class="text-red-400 text-sm mt-1 hidden"></p>
       </div>
 
-      <!-- User ID Input -->
+      <!-- Password Input -->
       <div class="mt-4">
-        <label for="user_id" class="block text-sm font-semibold mb-1">User ID (เลข ID ประจำรหัส)*</label>
-        <input
-          type="text"
-          id="user_id"
-          name="user_id"
-          required
-          class="w-full bg-zinc-800 text-white border border-yellow-400 focus:ring-2 focus:ring-yellow-500 rounded-md px-4 py-2"
-          placeholder="ABCD-123-456-789"
-          oninput="localStorage.setItem('user_id', this.value)"
-        />
+        <div class="flex justify-between items-center mb-1">
+          <label for="password" class="text-sm font-semibold">รหัสผ่าน*</label>
+        </div>
+        <div class="relative">
+          <input type="password" id="password" class="w-full bg-zinc-800 text-white border border-yellow-400 rounded-md px-4 py-2 pr-10" placeholder="รหัสผ่าน" />
+          <button type="button" onclick="togglePassword()" class="absolute right-2 top-2 text-sm text-yellow-400">👁</button>
+        </div>
+        <p id="passwordError" class="text-red-400 text-sm mt-1 hidden"></p>
       </div>
 
-      <!-- ปุ่มถัดไป -->
-      <button
-        type="button"
-        class="mt-6 w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded"
-        onclick="goToNextPage()"
-      >
-        ถัดไป
+      <!-- User ID -->
+      <div class="mt-4">
+        <label for="user_id" class="block text-sm font-semibold mb-1">User ID*</label>
+        <input type="text" id="user_id" class="w-full bg-zinc-800 text-white border border-yellow-400 rounded-md px-4 py-2" placeholder="ABCD-123-456-789" />
+        <p id="userIdError" class="text-red-400 text-sm mt-1 hidden"></p>
+      </div>
+
+      <!-- <hr class="border-zinc-700 my-6" /> -->
+      
+      <!-- ลิงก์ลืมรหัสผ่าน + สมัครที่นี่ -->
+      <div class="flex justify-between items-center text-sm text-zinc-400 mt-2">
+        <span>
+          หากยังไม่มีบัญชี? 
+          <a href="signup.html" class="text-yellow-400 hover:underline">สมัครที่นี่</a>
+        </span>
+        <a href="reset-password.html" class="text-yellow-400 hover:underline">ลืมรหัสผ่าน?</a>
+      </div>
+
+      <!-- Login Button -->
+      <button id="loginBtn" type="button" class="mt-6 w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded" onclick="login()">
+        เข้าสู่ระบบ
       </button>
     </div>
   </div>
 
-  <!-- Script -->
   <script>
-    function goToNextPage() {
-      const username = document.getElementById("username").value.trim();
-      const userId = document.getElementById("user_id").value.trim();
-
-      if (!username || !userId) {
-        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-        return;
-      }
-
-      // บันทึกลง localStorage (เผื่อ browser ปิด JS input)
-      localStorage.setItem("username", username);
-      localStorage.setItem("user_id", userId);
-
-      // ไปยังหน้า step2.html
-      window.location.href = "vendor-page_2.html";
+    function togglePassword() {
+      const input = document.getElementById("password");
+      input.type = input.type === "password" ? "text" : "password";
     }
 
-    // preload ค่าที่เคยกรอกไว้
-    window.addEventListener("DOMContentLoaded", function () {
+    function showError(id, message) {
+      const el = document.getElementById(id);
+      el.textContent = message;
+      el.classList.remove("hidden");
+    }
+
+    function hideError(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    let loginFailCount = parseInt(localStorage.getItem("loginFailCount") || "0", 10);
+    let loginBlockedUntil = parseInt(localStorage.getItem("loginBlockedUntil") || "0", 10);
+
+    function updateLoginButton() {
+      const now = Date.now();
+      const btn = document.getElementById("loginBtn");
+
+      if (now < loginBlockedUntil) {
+        const remaining = Math.ceil((loginBlockedUntil - now) / 1000);
+        btn.disabled = true;
+        btn.classList.add("opacity-50", "cursor-not-allowed");
+        btn.textContent = `กรุณารอ ${remaining} วินาที...`;
+      } else {
+        btn.disabled = false;
+        btn.classList.remove("opacity-50", "cursor-not-allowed");
+        btn.textContent = "เข้าสู่ระบบ";
+      }
+    }
+
+    setInterval(updateLoginButton, 1000);
+    window.addEventListener("DOMContentLoaded", () => {
+      updateLoginButton();
       document.getElementById("username").value = localStorage.getItem("username") || "";
       document.getElementById("user_id").value = localStorage.getItem("user_id") || "";
     });
+
+    function login() {
+      const now = Date.now();
+      const loginBlockedUntil = parseInt(localStorage.getItem("loginBlockedUntil") || "0", 10);
+
+      if (now < loginBlockedUntil) {
+        alert(`คุณยังถูกบล็อกอยู่ กรุณารออีก ${(Math.ceil((loginBlockedUntil - now) / 1000))} วินาที`);
+        updateLoginButton(); // เพื่อให้ UI อัปเดต
+        return;
+      }
+
+      const username = document.getElementById("username").value.trim();
+      const userId = document.getElementById("user_id").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      ["usernameError", "userIdError", "passwordError"].forEach(hideError);
+
+      if (!username) {
+        showError("usernameError", "กรุณากรอกชื่อผู้ใช้งาน");
+        return;
+      }
+      if (!userId) {
+        showError("userIdError", "กรุณากรอก User ID");
+        return;
+      }
+      if (!password) {
+        showError("passwordError", "กรุณากรอกรหัสผ่าน");
+        return;
+      }
+
+      fetch("https://chayang-n8n-app.onrender.com/webhook/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, userId, password })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            localStorage.removeItem("loginFailCount");
+            localStorage.removeItem("loginBlockedUntil");
+            localStorage.setItem("username", username);
+            localStorage.setItem("user_id", userId);
+            window.location.href = "select-update_or_sell.html";
+          } else {
+            let loginFailCount = parseInt(localStorage.getItem("loginFailCount") || "0", 10);
+            loginFailCount++;
+            localStorage.setItem("loginFailCount", loginFailCount.toString());
+
+            if (loginFailCount >= 5) {
+              const blockDuration = 5 * 60 * 1000; // 5 นาที
+              const until = Date.now() + blockDuration;
+              localStorage.setItem("loginBlockedUntil", until.toString());
+              updateLoginButton();
+              alert("คุณพยายามเข้าสู่ระบบผิดเกิน 5 ครั้ง ระบบจะบล็อคชั่วคราว 5 นาที");
+            } else {
+              const msg = data.message || "ไม่สามารถเข้าสู่ระบบได้ กรุณาตรวจสอบชื่อผู้ใช้งานหรือรหัสผ่าน";
+              showError("passwordError", msg);
+            }
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("ไม่สามารถเชื่อมต่อกับระบบได้");
+        });
+    }
+
   </script>
 </body>
 </html>

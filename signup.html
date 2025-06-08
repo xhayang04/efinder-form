@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>ลงทะเบียน eFinder</title>
+</head>
+<body class="bg-black min-h-screen flex flex-col items-center px-4 py-6">
+
+  <!-- Header -->
+  <div class="flex items-center space-x-2 mb-6">
+    <img src="logo.png" alt="eFinder Logo" class="w-10 h-10" />
+    <h1 class="text-white text-2xl font-bold">eFinder</h1>
+  </div>
+
+  <!-- Form Box -->
+  <div class="relative max-w-md w-full bg-zinc-900 text-white rounded-lg shadow-lg p-6 space-y-4">
+
+    <h2 class="text-xl font-bold text-white mb-2 mt-2 pl-6">
+      ลงทะเบียนเข้าสู่ระบบ <span class="text-yellow-400">eFinder</span>
+    </h2>
+
+    <hr class="border-zinc-700 my-6" />
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">Email*</label>
+      <input id="email" type="email" class="w-full bg-zinc-800 border border-yellow-400 rounded-md px-4 py-2" placeholder="example@email.com" required />
+      <p id="emailError" class="text-red-400 text-sm mt-1 hidden"></p>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">ชื่อผู้ใช้งาน*</label>
+      <input id="username" type="text" class="w-full bg-zinc-800 border border-yellow-400 rounded-md px-4 py-2" placeholder="ชื่อที่ใช้เข้าสู่ระบบ" required />
+      <p id="usernameError" class="text-red-400 text-sm mt-1 hidden"></p>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">Password*</label>
+      <div class="relative">
+        <input type="password" id="password" class="w-full bg-zinc-800 border border-yellow-400 rounded-md px-4 py-2 pr-10" placeholder="รหัสผ่าน" required />
+        <button type="button" onclick="togglePassword('password')" class="absolute right-2 top-2 text-sm text-yellow-400">👁</button>
+      </div>
+      <p id="passwordError" class="text-red-400 text-sm mt-1 hidden"></p>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">ยืนยัน Password*</label>
+      <div class="relative">
+        <input type="password" id="confirm_password" class="w-full bg-zinc-800 border border-yellow-400 rounded-md px-4 py-2 pr-10" placeholder="ยืนยันรหัสผ่าน" required />
+        <button type="button" onclick="togglePassword('confirm_password')" class="absolute right-2 top-2 text-sm text-yellow-400">👁</button>
+      </div>
+      <p id="confirmPasswordError" class="text-red-400 text-sm mt-1 hidden"></p>
+    </div>
+
+        <!-- Sender ID -->
+    <div>
+    <label class="block text-sm font-semibold mb-1 flex items-center gap-1">
+        Sender ID*
+        <span class="text-yellow-400 cursor-pointer" title="คุณจะได้รับ Sender ID จากการสนทนาทางแชทกับเพจ eFinder">ℹ️</span>
+    </label>
+    <input id="senderId" type="text" class="w-full bg-zinc-800 border border-yellow-400 rounded-md px-4 py-2" placeholder="กรอก Sender ID ที่ได้รับ" required />
+    <p id="senderIdError" class="text-red-400 text-sm mt-1 hidden"></p>
+    </div>
+
+    <hr class="border-zinc-700 my-6" />
+
+    <!-- กลุ่ม Facebook ทั้งหมด -->
+    <div class="space-y-2">
+    <!-- ไอคอน + คำว่า Facebook ตรงกลาง -->
+    <div class="flex justify-center items-center space-x-2 mb-2">
+        <img src="facebook.svg" alt="Facebook" class="w-6 h-6">
+        <span class="text-white text-lg font-semibold">Facebook</span>
+    </div>
+
+    <!-- ชื่อ Facebook -->
+    <div>
+        <label class="block text-sm font-semibold mb-1">ชื่อ Facebook*</label>
+        <input id="facebookName" type="text" class="w-full bg-zinc-800 border border-yellow-400 rounded-md px-4 py-2" placeholder="ชื่อบน Facebook" required />
+        <p id="facebookNameError" class="text-red-400 text-sm mt-1 hidden"></p>
+    </div>
+
+    <!-- ลิงก์ Facebook -->
+    <div>
+        <label class="block text-sm font-semibold mb-1">ลิงก์ Facebook*</label>
+        <input id="facebookLink" type="url" class="w-full bg-zinc-800 border border-yellow-400 rounded-md px-4 py-2" placeholder="https://www.facebook.com/" required />
+        <p id="facebookLinkError" class="text-red-400 text-sm mt-1 hidden"></p>
+    </div>
+    </div>
+
+
+
+    <hr class="border-zinc-700 my-6" />
+
+    <div class="flex justify-between gap-4 pt-4">
+      <button type="button" class="w-1/2 bg-zinc-700 hover:bg-zinc-600 text-white font-semibold py-2 px-4 rounded" onclick="goBack()">
+        ย้อนกลับ
+      </button>
+      <button type="button" class="w-1/2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded" onclick="submitToN8n()">
+        ยืนยัน
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword(id) {
+      const input = document.getElementById(id);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    function goBack() {
+      window.location.href = "vendor-page_1.html";
+    }
+    
+    localStorage.removeItem("resendCount");
+    localStorage.removeItem("otpFailCount");
+
+    function submitToN8n() {
+    const email = document.getElementById("email").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm_password").value;
+    const senderId = document.getElementById("senderId").value.trim();
+    const facebookName = document.getElementById("facebookName").value.trim();
+    const facebookLink = document.getElementById("facebookLink").value.trim();
+
+    let isValid = true;
+
+    function showError(id, message) {
+        const el = document.getElementById(id);
+        el.textContent = message;
+        el.classList.remove("hidden");
+    }
+
+    function hideError(id) {
+        document.getElementById(id).classList.add("hidden");
+    }
+
+    ["emailError", "usernameError", "passwordError", "confirmPasswordError", "senderIdError", "facebookNameError", "facebookLinkError"].forEach(hideError);
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+    if (!email || !emailPattern.test(email)) {
+        showError("emailError", "กรุณากรอกอีเมลให้ถูกต้อง"); isValid = false;
+    }
+    if (!username) {
+        showError("usernameError", "กรุณากรอกชื่อผู้ใช้งาน"); isValid = false;
+    }
+    if (!passwordPattern.test(password)) {
+        showError("passwordError", "รหัสผ่านต้องมีอย่างน้อย 8 ตัว และมีทั้งตัวอักษรกับตัวเลข"); isValid = false;
+    }
+    if (password !== confirmPassword) {
+        showError("confirmPasswordError", "รหัสผ่านไม่ตรงกัน"); isValid = false;
+    }
+    if (!senderId) {
+        showError("senderIdError", "กรุณากรอก Sender ID"); isValid = false;
+    }
+    if (!facebookName) {
+        showError("facebookNameError", "กรุณากรอกชื่อ Facebook"); isValid = false;
+    }
+    if (!facebookLink.startsWith("https://www.facebook.com/") && !facebookLink.startsWith("http://www.facebook.com/")) {
+        showError("facebookLinkError", "ลิงก์ Facebook ต้องขึ้นต้นด้วย https://facebook.com/"); isValid = false;
+    }
+
+    if (!isValid) return;
+
+    fetch("https://chayang-n8n-app.onrender.com/webhook/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, username, password, senderId, facebookName, facebookLink })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        localStorage.setItem("userEmail", email);
+        localStorage.setItem("otpSessionId", data.otpSessionId);
+        window.location.href = "verify-otp.html";
+      } else {
+        // แสดงข้อความซ้ำเฉพาะ field
+        if (data.exists?.email) {
+          showError("emailError", "อีเมลนี้ถูกใช้แล้ว");
+        }
+        if (data.exists?.username) {
+          showError("usernameError", "ชื่อผู้ใช้นี้ถูกใช้แล้ว");
+        }
+        if (data.exists?.senderID) {
+          showError("senderIdError", "Sender ID นี้ถูกใช้แล้ว");
+        }
+        if (data.exists?.facebookLink) {
+          showError("facebookLinkError", "ลิงก์ Facebook นี้ถูกใช้แล้ว");
+        }
+
+        // ถ้าไม่มีฟิลด์ซ้ำใดเลยแต่ยัง error → แจ้งทั่วไป
+        if (!data.exists || Object.values(data.exists).every(v => !v)) {
+          alert(data.message || "เกิดข้อผิดพลาด กรุณาลองใหม่");
+        }
+      }
+    })
+
+
+    .catch(err => {
+        console.error("Error:", err);
+        alert("ไม่สามารถเชื่อมต่อกับระบบได้");
+    });
+    }
+
+  </script>
+</body>
+</html>
