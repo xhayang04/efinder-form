@@ -146,9 +146,10 @@
       })
       .then(res => {
         if (res.ok) {
-          alert("✅ ส่งข้อมูลเรียบร้อยแล้ว!");
           localStorage.clear();
-        } else {
+          window.location.href = "success.html";
+        }
+        else {
           alert("❌ ส่งข้อมูลไม่สำเร็จ");
         }
       })
