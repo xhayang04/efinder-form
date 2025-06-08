@@ -61,10 +61,16 @@
         <a href="reset-password.html" class="text-yellow-400 hover:underline">ลืมรหัสผ่าน?</a>
       </div>
 
-      <!-- Login Button -->
-      <button id="loginBtn" type="button" class="mt-6 w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded" onclick="login()">
-        เข้าสู่ระบบ
-      </button>
+      <!-- ปุ่มย้อนกลับ + เข้าสู่ระบบ -->
+      <div class="flex justify-between gap-4 mt-6">
+        <button onclick="goBack()" class="w-1/2 bg-zinc-700 hover:bg-zinc-600 text-white font-semibold py-2 px-4 rounded">
+          ← กลับสู่หน้าหลัก
+        </button>
+        <button id="loginBtn" type="button" onclick="login()" class="w-1/2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded">
+          เข้าสู่ระบบ
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -72,6 +78,10 @@
     function togglePassword() {
       const input = document.getElementById("password");
       input.type = input.type === "password" ? "text" : "password";
+    }
+    
+    function goBack() {
+      window.location.href = "index.html"; // เปลี่ยนชื่อไฟล์ตามที่คุณใช้จริง
     }
 
     function showError(id, message) {
